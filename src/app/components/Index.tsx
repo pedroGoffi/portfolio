@@ -112,10 +112,10 @@ const SimplePage: React.FC = () => {
       <div style={heroContainer}>
         {/* Your Photo */}
         <picture>
-          <source srcSet="/GoffiPicture.webp" type="image/webp" />
+          <source srcSet="./images/GoffiPicture.webp" type="image/webp" />
           <img 
-            src="/GoffiPicture.webp" 
-            alt="Your Name"
+            src="/images/GoffiPicture.webp" 
+            alt="Pedro Henrique Goffi de Paulo"
             style={heroImage} 
             loading="lazy"
           />
