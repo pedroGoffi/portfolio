@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "20.x"
+    "node": ">=20.x"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -19,7 +19,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1",
-    "three-voxel-loader": "^1.2.2"
+    "three": "^0.172.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
