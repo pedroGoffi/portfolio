@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",    
     "target": "ES2020",
     "lib": [
       "dom",
@@ -24,8 +25,9 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*",        
-      ]
+        "./src/*",                
+      ],
+      "@components/*": ["app/components/*"]
     },
     "noUnusedLocals":     false,
     "noUnusedParameters": false    
