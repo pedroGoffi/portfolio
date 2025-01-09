@@ -9,8 +9,8 @@ const Footer: React.FC = () => {
         <p style={footerTextStyles}>© 2024 Goffi Portfolio. All rights reserved.</p>
         <div style={socialLinksStyles}>
           <a href="https://github.com/pedroGoffi" target="_blank" rel="noopener noreferrer" style={socialLinkStyles}>GitHub</a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={socialLinkStyles}>LinkedIn</a>
-          <a href="mailto:email@example.com" style={socialLinkStyles}>Email</a>
+          <a href="https://www.linkedin.com/in/pedro-henrique-goffi-de-paulo-bb0426230/" target="_blank" rel="noopener noreferrer" style={socialLinkStyles}>LinkedIn</a>
+          <a href="mailto:pedrohgdepauloc@gmail.com" style={socialLinkStyles}>Email</a>
         </div>
       </div>
     </footer>
@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
 };
 
 const footerStyles: React.CSSProperties = {
-  backgroundColor: "#333",
+  backgroundColor: "#222",
   color: "#fff",
   padding: "20px 0",
   textAlign: "center",
