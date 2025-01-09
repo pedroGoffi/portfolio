@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Layout from "../default_layout";
-import ThreeScene from "./render/page";
+import Layout       from "../default_layout";
+import ThreeScene   from "./render/page";
 const heroSectionStyle: React.CSSProperties = {
   padding: '5rem 0',
   textAlign: 'center',
