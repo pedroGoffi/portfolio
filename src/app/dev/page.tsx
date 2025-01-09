@@ -38,7 +38,7 @@ const buttonStyle: React.CSSProperties = {
 
 const DevPage: React.FC = () => {     
   const [initializeThree, setInitializeThree] = useState<boolean>(false);
-  let HandleInitializeThree = () => {
+  const HandleInitializeThree = () => {
     setInitializeThree(!initializeThree);    
   }
   return (
@@ -60,11 +60,7 @@ const DevPage: React.FC = () => {
               {/* Seção do Canvas */}
               <section style={{ position: 'relative', height: '60vh', display: (initializeThree? 'block': 'none')}}>                  
                   {<ThreeScene />}
-              </section>     
-
-              <script about="fix three bug">
-                console.log(window.document)
-              </script>               
+              </section>                   
           </div>      
       </Layout>
   );

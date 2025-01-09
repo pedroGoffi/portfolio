@@ -19,16 +19,16 @@ import { CreateModalTextBox } from "./modals";
 let renderer:                 THREE.WebGLRenderer;
 let scene:                    THREE.Scene;
 let camera:                   THREE.PerspectiveCamera;
-let timer:                    number                = 0;
-let clock:                    THREE.Clock           = new THREE.Clock();
-let environment:              Map<string, object>   = new Map<string, object>();
-let GroundGridSize:           number                = 10;
-let GroundGrindDivisions:     number                = 10;
-let MoonPosition:             Vector3               = new Vector3(-3, 3, -3);
-let raycaster:                THREE.Raycaster       = new THREE.Raycaster();
-let mousePosition:            Vector2               = new Vector2();
-let UI_CREATOR_TEXT_POSITION: Vector3               = new Vector3(-3, 6, 0);
-type UD_oClick_t = (mesh: Mesh) => any;
+//let timer:                    number                = 0;
+//let clock:                    THREE.Clock           = new THREE.Clock();
+const environment:              Map<string, object>   = new Map<string, object>();
+const GroundGridSize:           number                = 10;
+const GroundGrindDivisions:     number                = 10;
+const MoonPosition:             Vector3               = new Vector3(-3, 3, -3);
+const raycaster:                THREE.Raycaster       = new THREE.Raycaster();
+const mousePosition:            Vector2               = new Vector2();
+const UI_CREATOR_TEXT_POSITION: Vector3               = new Vector3(-3, 6, 0);
+type UD_oClick_t = (mesh: Mesh) => void;
 // NOTE: UserData is injected into THREE objects to make more versatile use on the same object
 interface UserData {
   onClick?: UD_oClick_t
@@ -62,22 +62,21 @@ const CenterMesh = (mesh: Mesh) => {
 };
 const MeshRotate = (mesh: Mesh, rotationOffset: THREE.Vector3): void => {
   // Get the current rotation as a Vector3
-  let oldRotation: THREE.Vector3 = new THREE.Vector3(mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
-  
+  const oldRotation: THREE.Vector3 = new THREE.Vector3(mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);  
   // Calculate the new rotation by adding the offset
-  let newRotation: THREE.Vector3 = oldRotation.add(rotationOffset);
+  const newRotation: THREE.Vector3 = oldRotation.add(rotationOffset);
   
   // Apply the new rotation to the mesh
   mesh.rotation.setFromVector3(newRotation);
     
 }
-const CreateLine = (start: Vector3, end: Vector3, color: number): Mesh => 
-{
-  const geometry: THREE.BufferGeometry = new THREE.BufferGeometry().setFromPoints([start, end]);
-  const material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color })
-
-  return new Mesh(geometry, material);
-}
+// const CreateLine = (start: Vector3, end: Vector3, color: number): Mesh => 
+// {
+//   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry().setFromPoints([start, end]);
+//   const material: THREE.LineBasicMaterial = new THREE.LineBasicMaterial({ color })
+// 
+//   return new Mesh(geometry, material);
+// }
 
 const CreateMountain = (size: Vector3, position: Vector3, color: number) => {
   const geometry = new THREE.ConeGeometry(size.x, size.y, size.z);
@@ -167,12 +166,11 @@ const RenderUpdateMesh = (name: string, callback: (mesh: Mesh) => void) => {
 }
 // Render function to update the scene
 
-const RenderUpdate = () => {
-  timer += clock.getDelta();
+const RenderUpdate = () => {  
   RenderUpdateMesh("moon", 
     (mesh: Mesh) => {
-      let rotation: Vector3 = new Vector3(0, 1, 0.5);
-      let rotationScale: number = 0.005;
+      const rotation: Vector3 = new Vector3(0, 1, 0.5);
+      const rotationScale: number = 0.005;
       MeshRotate(mesh, rotation.multiplyScalar(rotationScale))
     }
   )  
@@ -180,22 +178,26 @@ const RenderUpdate = () => {
 };
 
 const SettupRenderer = () => {
-  // Renderer setup
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  if(typeof window != "undefined"){
+    // Renderer setup
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
 }
 const SettupScene  = () => {
   scene = new THREE.Scene();
 }
 const SettupCamera = () => {
-  camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  let cameraPosition: Vector3 = new Vector3(10, 5, -0.3);    
-  camera.position.add(cameraPosition);  
+  if(typeof window != "undefined"){
+    camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    );
+    const cameraPosition: Vector3 = new Vector3(10, 5, -0.3);    
+    camera.position.add(cameraPosition);  
+  }
 }
 // Wrap the render loop to handle animation
 const RenderMainLoop = () => {
@@ -218,8 +220,9 @@ const CreateUserData = (onClick?: UD_oClick_t): UserData  => {
       onClick: onClick
     }
 }
-const HandleCreathorClicked = (mesh: Mesh): void => {
-  let creathorDescriptionModalText: string = `
+
+const HandleCreathorClicked = (mesh: Mesh): void => {    
+  const creathorDescriptionModalText: string = `
     <h2>Me chamo Pedro Henrique Goffi de Paulo</h2>
     <p>Tenho trabalhado em diversos projetos ao longo da minha jornada como desenvolvedor, sempre buscando novas soluções e desafiando meus limites técnicos.</p>
     <p>Alguns dos meus projetos incluem:</p>
@@ -234,16 +237,20 @@ const HandleCreathorClicked = (mesh: Mesh): void => {
   `;
   CreateModalTextBox("creathor-description", creathorDescriptionModalText)  
 }
-const HandleMoonClicked = (mesh: Mesh): void => {
-  window.open("https://pt.wikipedia.org/wiki/Lua", "_blank")
+
+const HandleMoonClicked = (mesh: Mesh): void => {    
+  if(typeof window != "undefined"){
+    window.open("https://pt.wikipedia.org/wiki/Lua", "_blank")
+  }
 }
 
 const RenderSceneAdd = (
-  name: string, 
-  callback: () => any,
+  name: string,   
+  // @ts-nocheck
+  callback: () => any, 
   onClick?: UD_oClick_t
 ) => {
-  let mesh: Mesh = RenderEnvAdd(name, callback, environment);      
+  const mesh: Mesh = RenderEnvAdd(name, callback, environment);      
   InjectUsedData(mesh, CreateUserData(onClick))
   scene.add(mesh)
 }
@@ -254,7 +261,7 @@ const StartScene = async () => {
 
   RenderSceneAdd("directionalLight",
     () => {
-      let light: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1)
+      const light: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1)
       light.position.set(0, 10, 10)
       return light;
 
@@ -275,7 +282,7 @@ const StartScene = async () => {
   )
   
   
-  let UI_CREATOR_TEXT: Mesh = await Create3DText("Sobre Mim");
+  const UI_CREATOR_TEXT: Mesh = await Create3DText("Sobre Mim");
   //UI_CREATOR_TEXT.position.add(UI_CREATOR_TEXT_POSITION)
   UI_CREATOR_TEXT.rotation.y += Math.PI / 2;
   CenterMesh(UI_CREATOR_TEXT)
@@ -301,20 +308,21 @@ const ThreeWebGLUnavailable: React.FC = () => {
 };
 
 const UpdateMousePosition = (event: MouseEvent): void => {
-  // Normalize mouse coordinates to [-1, +1] for both axes  
-  mousePosition.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mousePosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+  if(typeof window != "undefined"){
+    // Normalize mouse coordinates to [-1, +1] for both axes  
+    mousePosition.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mousePosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  }
 }
 const OnMouseClick = (event: MouseEvent): void => {
   UpdateMousePosition(event);  
   raycaster.ray.origin.setFromMatrixPosition(camera.matrixWorld);
   raycaster.ray.direction.set(mousePosition.x, mousePosition.y, 1).unproject(camera).sub(raycaster.ray.origin).normalize()
 
-  let intersects: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>[] = raycaster.intersectObjects(scene.children, true);
+  const intersects: THREE.Intersection<THREE.Object3D<THREE.Object3DEventMap>>[] = raycaster.intersectObjects(scene.children, true);
   
   for(const obj of intersects){
-    let userData: UserData = obj.object.userData
+    const userData: UserData = obj.object.userData
     if(userData.onClick) userData.onClick(obj.object as Mesh)
   }
 
@@ -346,22 +354,31 @@ const ThreeScene: React.FC = () => {
 
     // Handle resizing
     const handleResize = () => {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      if (typeof window != "undefined"){ 
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+      }
     };
-    window.addEventListener("resize", handleResize);
+    if (typeof window != "undefined"){
+      window.addEventListener("resize", handleResize);
+    }
 
     // Cleanup on component unmount
     return () => {      
       renderer.dispose();
     };
   }, []);
-
-  window.addEventListener('click', OnMouseClick, false);
+  if (typeof window != "undefined") {
+    window.addEventListener('click', OnMouseClick, false);
+  }
   return (
     <div id="ThreeRoot">
-      {!webGLAvailable ? ( <ThreeWebGLUnavailable /> ) : ( <div ref={mountRef} style={{ width: "100%", height: "100%" }} /> )}
+      {webGLAvailable ? ( 
+        <div ref={mountRef} style={{ width: "100%", height: "100%" }} /> 
+      ): ( 
+        <ThreeWebGLUnavailable /> 
+      )};
     </div>
   );
 };

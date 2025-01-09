@@ -3,6 +3,7 @@ import React from 'react';
 import Header from './components/Header';  // Make sure the path is correct
 import Footer from './components/Footer';  // Make sure the path is correct
 
+
 interface LayoutProps {
   children: React.ReactNode;  // This will hold the content of each page
 }

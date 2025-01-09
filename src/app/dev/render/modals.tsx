@@ -1,4 +1,4 @@
-let createdModals: Map<string, HTMLElement | undefined> = new Map<string, HTMLElement>();
+const createdModals: Map<string, HTMLElement | undefined> = new Map<string, HTMLElement>();
 
 const DeleteModalFromMap = (modalName: string) => {
     createdModals.delete(modalName);
@@ -10,14 +10,14 @@ const GetModal = (modalName: string): HTMLElement | undefined => {
 
 // TODO: make a modal root to more versatile uses in create modal
 export const CreateModalTextBox = (modalName: string, innerHTML: string) => {
-    let alreadyCreatedModal: HTMLElement | undefined = GetModal(modalName);
+    const alreadyCreatedModal: HTMLElement | undefined = GetModal(modalName);
     if (alreadyCreatedModal) {
         // Ensure the modal is visible if it was hidden
         alreadyCreatedModal.style.display = 'block';
         return alreadyCreatedModal;
     }
 
-    let modal: HTMLElement = document.createElement('div');
+    const modal: HTMLElement = document.createElement('div');
     modal.style.position = 'fixed';
     modal.style.top = '50%';
     modal.style.left = '50%';
@@ -44,7 +44,7 @@ export const CreateModalTextBox = (modalName: string, innerHTML: string) => {
 };
 
 export const CloseModalTextBox = (modalName: string) => {
-    let modal: HTMLElement = createdModals.get(modalName) as HTMLElement;
+    const modal: HTMLElement = createdModals.get(modalName) as HTMLElement;
     if (modal) {
         DeleteModalFromMap(modalName);
         modal.style.display = 'none';

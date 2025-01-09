@@ -24,9 +24,11 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./src/*",        
       ]
-    }
+    },
+    "noUnusedLocals":     false,
+    "noUnusedParameters": false    
   },
   "include": [
     "**/*.ts",
@@ -38,5 +40,5 @@
   "exclude": [
     "node_modules"
   ],
-  
+    
 }
