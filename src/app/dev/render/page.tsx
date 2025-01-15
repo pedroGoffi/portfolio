@@ -19,6 +19,8 @@ import { createOrbitPath, EARTH_ECCENTRICITY, EARTH_SEMI_MAJOR_AXIS, MOON_ECCENT
 
 
 
+
+
 let renderer:                   THREE.WebGLRenderer;
 let scene:                      THREE.Scene;
 let camera:                     THREE.PerspectiveCamera;
@@ -30,10 +32,10 @@ const ORBIT_TIMESCALE:          number                = 1e6;
 const ORBIT_SCALE_UXUI:         number                = 1e5;
 const ORBIT_SCALE_UXUI_ROT:     number                = 1e2;
 const ORBIT_SCALE:              number                = 1e-10;  // Scaling factor (smaller orbit)
-let earthVelocity:              Vector3               = new Vector3(0, 30000, 0);
-let moonVelocity:               Vector3               = new Vector3(0, 1000, 0);
+const earthVelocity:            Vector3               = new Vector3(0, 30000, 0);
+const moonVelocity:             Vector3               = new Vector3(0, 1000, 0);
 let timer:                      number                = 0;
-let clock:                      THREE.Clock           = new THREE.Clock();
+const clock:                    THREE.Clock           = new THREE.Clock();
 const PAUSE_TIME:               boolean               = false;
 const DEBUG:                    boolean               = false;
 const environment:              Map<string, object>   = new Map<string, object>();
@@ -150,13 +152,16 @@ const CreateEarth = (radius: number, position: THREE.Vector3) => {
   });
 
   // Create the Earth mesh
-  let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);  
+  const mesh: THREE.Mesh = new THREE.Mesh(geometry, material);  
   mesh.castShadow = true
   mesh.receiveShadow = true
   mesh.position.set(position.x, position.y, position.z);
   
   return mesh;
 };
+
+
+
 
 
 const CreateSun = (radius: number, position: THREE.Vector3): THREE.Mesh => {
@@ -251,8 +256,10 @@ const CreateGlowingGrid = (size: number, divisions: number) => {
 };
 
 
+
+
 const RenderUpdateMesh = (name: string, callback: (mesh: Mesh) => void) => {
-  let foundMesh: Mesh | undefined = GetMesh(name)
+  const foundMesh: Mesh | undefined = GetMesh(name)
   if(!foundMesh) {
     console.warn(`Mesh ${name} not found`)      
     return 
@@ -274,20 +281,23 @@ const RenderUpdate = () => {
   
   
 
-  // Update Sun, Earth, and Moon positions
   RenderUpdateMesh("sun", (mesh: THREE.Mesh) => mesh.position.copy(sunPosition));  
   RenderUpdateMesh("earth", (mesh: THREE.Mesh) => {
     mesh.position.copy(earthPosition);
-
     // Rotate Earth on its axis (1 full rotation per day)
     const earthRotationSpeed = (2 * Math.PI) / (86400); // 86400 seconds in a day
     mesh.rotation.y += earthRotationSpeed * timer * ORBIT_SCALE_UXUI_ROT;
   });    
-  RenderUpdateMesh("moon-orbit",
-    (mesh: Mesh) => {
-      mesh.position.copy(GetMesh("earth")?.position!);      
+  RenderUpdateMesh("moon-orbit", (mesh: Mesh) => {
+    const earthMesh = GetMesh("earth");
+    
+    if (earthMesh) {
+      mesh.position.copy(earthMesh.position);  // Safe to copy if earthMesh is not null
+    } else {
+      console.warn("Earth mesh not found!");
     }
-  )
+  });
+  
   RenderUpdateMesh("moon", (mesh: THREE.Mesh) => {
     mesh.position.copy(earthPosition).add(moonPosition);
 
