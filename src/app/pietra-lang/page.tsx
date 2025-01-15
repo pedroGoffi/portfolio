@@ -78,9 +78,7 @@ main :: (argc: i64, argv: mut *cstr)
         <section style={{ marginBottom: '40px', maxWidth: '800px', margin: 'auto' }}>
           <h2 style={{ color: '#2c3e50' }}>Exemplo de Código</h2>
           <div style={{ padding: '20px', backgroundColor: '#282c34', borderRadius: '8px' }}>
-            <SyntaxHighlighter language="pietra" style={dracula}>
-              {pietraCode}
-            </SyntaxHighlighter>
+            <SyntaxHighlighter language="pietra" style={dracula}> { pietraCode } </SyntaxHighlighter>
           </div>
         </section>
 

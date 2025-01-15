@@ -8,26 +8,39 @@ import {
   Vector3, 
   Mesh 
 } from "three";
+import { FBXLoader } from "three/examples/jsm/Addons.js";
+import { OBJLoader } from "three/examples/jsm/Addons.js";
 import { FontLoader }         from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry }       from 'three/examples/jsm/geometries/TextGeometry.js';
-import { texture_lune }       from "./textures";
 import { CreateModalTextBox } from "./modals";
+import { createOrbitPath, EARTH_ECCENTRICITY, EARTH_SEMI_MAJOR_AXIS, MOON_ECCENTRICITY, MOON_ORBITAL_PERIOD, MOON_SEMI_MAJOR_AXIS, simulateEarthOrbit, simulateMoonOrbit } from "./physics";
 
 
 
 
-let renderer:                 THREE.WebGLRenderer;
-let scene:                    THREE.Scene;
-let camera:                   THREE.PerspectiveCamera;
-//let timer:                    number                = 0;
-//let clock:                    THREE.Clock           = new THREE.Clock();
+
+let renderer:                   THREE.WebGLRenderer;
+let scene:                      THREE.Scene;
+let camera:                     THREE.PerspectiveCamera;
+const PLANETS_SCALE_UXUI:       number                = 1e2
+const SUN_SIZE:                 number                = 1;
+const EARTH_SIZE:               number                = SUN_SIZE * 0.009 * PLANETS_SCALE_UXUI;
+const MOON_SIZE:                number                = SUN_SIZE * 0.0025 * PLANETS_SCALE_UXUI;
+const ORBIT_TIMESCALE:          number                = 1e6;
+const ORBIT_SCALE_UXUI:         number                = 1e5;
+const ORBIT_SCALE_UXUI_ROT:     number                = 1e2;
+const ORBIT_SCALE:              number                = 1e-10;  // Scaling factor (smaller orbit)
+let earthVelocity:              Vector3               = new Vector3(0, 30000, 0);
+let moonVelocity:               Vector3               = new Vector3(0, 1000, 0);
+let timer:                      number                = 0;
+let clock:                      THREE.Clock           = new THREE.Clock();
+const PAUSE_TIME:               boolean               = false;
+const DEBUG:                    boolean               = false;
 const environment:              Map<string, object>   = new Map<string, object>();
-const GroundGridSize:           number                = 10;
-const GroundGrindDivisions:     number                = 10;
 const MoonPosition:             Vector3               = new Vector3(-3, 3, -3);
 const raycaster:                THREE.Raycaster       = new THREE.Raycaster();
 const mousePosition:            Vector2               = new Vector2();
-const UI_CREATOR_TEXT_POSITION: Vector3               = new Vector3(-3, 6, 0);
+
 type UD_oClick_t = (mesh: Mesh) => void;
 // NOTE: UserData is injected into THREE objects to make more versatile use on the same object
 interface UserData {
@@ -45,6 +58,22 @@ enum Colors {
   NeonRed = 0xe50000,
   NeonLightBlue = 0x1f8cf5,
 }
+
+
+const GetMesh = (meshName: string): Mesh | undefined => {  
+  return environment.get(meshName) as Mesh
+}
+
+const Setmesh = (meshName: string, mesh: Mesh): void => {  
+  if(!GetMesh(meshName)) {
+    environment.set(meshName, mesh);
+  }
+}
+
+const SetMeshPosition = (mesh: Mesh, pos: Vector3) => {
+  mesh.position.set(pos.x, pos.y, pos.z)
+}
+
 const MoveMesh = (mesh: Mesh, targetPosition: Vector3) => {
   mesh.position.add(targetPosition);
 };
@@ -92,25 +121,90 @@ const CreateMountain = (size: Vector3, position: Vector3, color: number) => {
   return mountain;
 };
 
-const CreateMoon = (radius: number, position: Vector3, textureUrl: string): Mesh => {
+const CreateEarth = (radius: number, position: THREE.Vector3) => {
+  const geometry = new THREE.SphereGeometry(radius, 32, 32);
+  
+  // Load the texture maps
+  const textureLoader = new THREE.TextureLoader();
+  const earthTexture = textureLoader.load("/assets/3DTextures/tex_earth.jpg");
+  const earthSpecular = textureLoader.load("/assets/3DTextures/spec_earth.tif");
+  const earthNormal = textureLoader.load("/assets/3DTextures/normals_earth.jpg"); // Load the normal map
+
+  // Log the texture to ensure they're being loaded properly
+  earthNormal.anisotropy = 16;  // Improve texture quality, particularly for normal maps
+  console.log("Earth Normal Map Loaded: ", earthNormal);
+
+  // Set texture properties
+  earthNormal.wrapS = THREE.RepeatWrapping;
+  earthNormal.wrapT = THREE.RepeatWrapping;
+  earthNormal.minFilter = THREE.LinearFilter;
+  earthNormal.magFilter = THREE.LinearFilter;
+
+  // Create the material for Earth using MeshPhongMaterial
+  const material = new THREE.MeshPhongMaterial({
+    map: earthTexture,            // Apply the diffuse map (Earth's surface texture)
+    specularMap: earthSpecular,   // Apply the specular map
+    normalMap: earthNormal,       // Apply the normal map
+    normalScale: new THREE.Vector2(10, 10), // Adjust normal map scaling (try with higher values like (2, 2) if necessary)
+    shininess: 30,                // Adjust the shininess to control highlight sharpness
+  });
+
+  // Create the Earth mesh
+  let mesh: THREE.Mesh = new THREE.Mesh(geometry, material);  
+  mesh.castShadow = true
+  mesh.receiveShadow = true
+  mesh.position.set(position.x, position.y, position.z);
+  
+  return mesh;
+};
+
+
+const CreateSun = (radius: number, position: THREE.Vector3): THREE.Mesh => {
+  // Create a sphere geometry for the sun
+  const geometry = new THREE.SphereGeometry(radius, 32, 32);
+  const textureLoader = new THREE.TextureLoader();
+  const sunTexture = textureLoader.load("/assets/3DTextures/tex_sun.jpg")
+
+  // Create a MeshStandardMaterial with emissive properties
+  // Create material with enhanced emissive effect
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xFFFF00, // Yellow color for the sun
+    emissive: 0xFFFF00, // Emissive light in yellow
+    emissiveIntensity: 0.5, // Increased emissive intensity for a brighter glow
+    roughness: 0.2, // Reduced roughness for a smoother surface (slightly shiny)
+    metalness: 0.3, // Slight metalness for a more realistic appearance
+    map: sunTexture, // Applying the sun texture
+    emissiveMap: sunTexture, // Applying the same texture for the emissive effect  
+    side: THREE.DoubleSide, // To render both sides of the sphere (if it's a sphere)
+  });
+  // Create the mesh
+  const sun = new THREE.Mesh(geometry, material);
+  sun.position.set(position.x, position.y, position.z);
+  
+  return sun;
+}
+  
+const CreateMoon = (radius: number, position: Vector3): Mesh => {
   // Cria uma geometria esférica para representar a lua
   const geometry = new THREE.SphereGeometry(radius, 32, 32); // Usamos 32 subdivisões para a esfera
 
   // Carrega a textura da lua
   const textureLoader = new THREE.TextureLoader();
-  const texture = textureLoader.load(textureUrl);
+  const texture = textureLoader.load("/assets/3DTextures/tex_moon.jpg");
 
   // Cria o material com a textura carregada
   const material = new THREE.MeshStandardMaterial({
     map: texture,  // Mapeia a textura para a superfície da esfera
     emissive: 0xaaaaaa,  // A lua emite um pouco de luz para dar um brilho suave
-    emissiveIntensity: 0.2,  // Ajusta a intensidade do brilho da lua
+    emissiveIntensity: 0,  // Ajusta a intensidade do brilho da lua
     roughness: 0.6,  // Controle de rugosidade para simular uma superfície mais áspera
     metalness: 0.1  // Controla a quantidade de metalização para simular uma superfície rochosa
   });
 
   // Cria o mesh para a lua com a geometria e material definidos
   const moon = new Mesh(geometry, material);
+  moon.castShadow = true
+  moon.receiveShadow = true
 
   // Posiciona a lua na cena
   moon.position.set(position.x, position.y, position.z);
@@ -158,25 +252,55 @@ const CreateGlowingGrid = (size: number, divisions: number) => {
 
 
 const RenderUpdateMesh = (name: string, callback: (mesh: Mesh) => void) => {
-  let foundMesh: Mesh;
-  if(foundMesh = environment.get(name) as Mesh)
-  {
-    callback(foundMesh);
+  let foundMesh: Mesh | undefined = GetMesh(name)
+  if(!foundMesh) {
+    console.warn(`Mesh ${name} not found`)      
+    return 
   }
+  callback(foundMesh);        
 }
-// Render function to update the scene
 
+
+// Function to update positions
 const RenderUpdate = () => {  
-  RenderUpdateMesh("moon", 
+  timer += PAUSE_TIME? 0: clock.getDelta() * ORBIT_TIMESCALE
+
+  // Get Earth and Moon positions
+  
+  const sunPosition:    Vector3   = new Vector3(); 
+  const earthPosition:  Vector3   = simulateEarthOrbit(timer, earthVelocity).multiplyScalar(ORBIT_SCALE);
+  const moonPosition:   Vector3   = simulateMoonOrbit(timer, moonVelocity).divideScalar(ORBIT_SCALE_UXUI);  
+  
+  
+  
+
+  // Update Sun, Earth, and Moon positions
+  RenderUpdateMesh("sun", (mesh: THREE.Mesh) => mesh.position.copy(sunPosition));  
+  RenderUpdateMesh("earth", (mesh: THREE.Mesh) => {
+    mesh.position.copy(earthPosition);
+
+    // Rotate Earth on its axis (1 full rotation per day)
+    const earthRotationSpeed = (2 * Math.PI) / (86400); // 86400 seconds in a day
+    mesh.rotation.y += earthRotationSpeed * timer * ORBIT_SCALE_UXUI_ROT;
+  });    
+  RenderUpdateMesh("moon-orbit",
     (mesh: Mesh) => {
-      const rotation: Vector3 = new Vector3(0, 1, 0.5);
-      const rotationScale: number = 0.005;
-      MeshRotate(mesh, rotation.multiplyScalar(rotationScale))
+      mesh.position.copy(GetMesh("earth")?.position!);      
     }
-  )  
+  )
+  RenderUpdateMesh("moon", (mesh: THREE.Mesh) => {
+    mesh.position.copy(earthPosition).add(moonPosition);
+
+    // Rotate Moon on its axis (1 full rotation every 27.3 days)
+    const moonRotationSpeed = (2 * Math.PI) / (MOON_ORBITAL_PERIOD); // Moon's rotation period in seconds (27.3 days)
+    mesh.rotation.y += moonRotationSpeed * timer * ORBIT_SCALE_UXUI_ROT
+  });
+
+
+
+  // Render the scene
   renderer.render(scene, camera);
 };
-
 const SettupRenderer = () => {
   if(typeof window != "undefined"){
     // Renderer setup
@@ -206,9 +330,9 @@ const RenderMainLoop = () => {
 };
 
 // Takes a callback that returns a mesh and add it to the scene environment to be used in RenderUpdate
-const RenderEnvAdd = (name: string, callback: () => Mesh, environment: Map<string, object>): Mesh => {
-  environment.set(name, callback())
-  return environment.get(name) as Mesh
+const RenderEnvAdd = (name: string, callback: () => Mesh): Mesh => {
+  Setmesh(name, callback())  
+  return GetMesh(name) as Mesh
 }
 
 const InjectUsedData = (mesh: Mesh, userData: UserData): void => {
@@ -250,47 +374,84 @@ const RenderSceneAdd = (
   callback: () => any, 
   onClick?: UD_oClick_t
 ) => {
-  const mesh: Mesh = RenderEnvAdd(name, callback, environment);      
+  const mesh: Mesh = RenderEnvAdd(name, callback);      
   InjectUsedData(mesh, CreateUserData(onClick))
+  
+  if(DEBUG) {
+    const helper: THREE.BoxHelper = new THREE.BoxHelper(mesh, Colors.NeonGreen)
+    scene.add(helper)
+  }
+
   scene.add(mesh)
 }
-const StartScene = async () => {
-  RenderSceneAdd("ambientLight", 
-    () => new THREE.AmbientLight(0x404040, 1.5)
-  )  
 
-  RenderSceneAdd("directionalLight",
+// Function to create a spherical background with a texture applied to the inside
+const CreateBackgroundSphere = (radius: number): THREE.Mesh => {
+  const textureLoader = new THREE.TextureLoader();
+
+  // Load the texture and check for successful loading
+  const texture: THREE.Texture = textureLoader.load('/assets/3DTextures/milky_way.jpg');
+
+  // Make sure the texture is ready to use
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+
+  // Create a sphere geometry
+  const sphereGeometry: THREE.SphereGeometry = new THREE.SphereGeometry(radius, 32, 32);  // Increase segments for higher resolution
+
+  // Create a basic material using the texture
+  const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
+    map: texture,  // Apply the texture to the material
+    side: THREE.BackSide,  // Render the inside of the sphere
+  });
+
+  // Create the mesh with the geometry and material
+  const sphere: THREE.Mesh = new THREE.Mesh(sphereGeometry, material);
+  scene.background = new THREE.Color(0x000000);  // Set the background to black
+  return sphere;  // Return the sphere mesh
+};
+
+const StartScene = async () => {        
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Set the shadow type to a softer one
+
+  RenderSceneAdd("background",
+    () => CreateBackgroundSphere(250)
+  ) 
+  
+  RenderSceneAdd("moon",
+    () => CreateMoon(MOON_SIZE, MoonPosition),
+    (mesh: Mesh) => HandleMoonClicked(mesh)
+  )
+  // add Orbits
+  RenderSceneAdd("moon-orbit", () => createOrbitPath(MOON_SEMI_MAJOR_AXIS * ORBIT_SCALE * 1e5, MOON_ECCENTRICITY))
+  RenderSceneAdd("earth-orbit", () => createOrbitPath(EARTH_SEMI_MAJOR_AXIS * ORBIT_SCALE, EARTH_ECCENTRICITY))
+
+  const earth = CreateEarth(EARTH_SIZE, new THREE.Vector3(0, 0, 0))
+  RenderSceneAdd("earth",
+    () => earth
+  )
+  RenderSceneAdd("light",
     () => {
-      const light: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1)
-      light.position.set(0, 10, 10)
-      return light;
-
+      const sunlight = new THREE.DirectionalLight(0xFFFFFF, 0.5); // White light with intensity of 1
+      sunlight.castShadow = true
+      sunlight.position.set(0, 0, 0);  // Position the light far from the scene (Sun-like position)
+      sunlight.target = earth; // a little hack u know
+      return sunlight;
     }
   )
 
-  RenderSceneAdd("gridHelper",
-    () => CreateGlowingGrid(GroundGridSize, GroundGrindDivisions)
-  )
+    
+  RenderSceneAdd("sun", 
+    () => CreateSun(SUN_SIZE, new THREE.Vector3(0, 0, 0))
+  );
 
-  RenderSceneAdd("mountain",
-    () => CreateMountain(new Vector3(1, 3, 5), new Vector3(-3, 1.5, 2), Colors.NeonPurple)
-  )
-  
-  RenderSceneAdd("moon",
-    () => CreateMoon(2, MoonPosition, texture_lune),
-    (mesh: Mesh) => HandleMoonClicked(mesh)
-  )
   
   
-  const UI_CREATOR_TEXT: Mesh = await Create3DText("Sobre Mim");
-  //UI_CREATOR_TEXT.position.add(UI_CREATOR_TEXT_POSITION)
-  UI_CREATOR_TEXT.rotation.y += Math.PI / 2;
-  CenterMesh(UI_CREATOR_TEXT)
-  MoveMesh(UI_CREATOR_TEXT, UI_CREATOR_TEXT_POSITION);
-  RenderSceneAdd("creathor-name-3d", 
-    () => UI_CREATOR_TEXT,
-    (mesh: Mesh) => HandleCreathorClicked(mesh)
-  )
+  
+
+    
 }
 // Function to set up and start the scene rendering
 const RenderThreeScene = () => {  
