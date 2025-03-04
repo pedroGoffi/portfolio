@@ -7,7 +7,7 @@ Bem-vindo ao meu portfólio! Aqui você pode conhecer mais sobre mim, minhas hab
 
 Você pode acessar o meu portfólio ao vivo através do seguinte link:
 
-[Visite meu Portfólio](https://seu-site-deploy-link.com)
+[Visite meu Portfólio](https://portfolio-uia5.onrender.com)
 
 ## Tecnologias Utilizadas
 
@@ -28,7 +28,7 @@ Você pode acessar o meu portfólio ao vivo através do seguinte link:
 
 1. Clone este repositório para sua máquina local:
    ```bash
-   git clone https://github.com/seu-usuario/portfolio.git
+   git clone https://github.com/pedroGoffi/portfolio.git
    ```
 
 2. Navegue até a pasta do projeto:
@@ -61,7 +61,7 @@ Feito com ❤️ por Pedro Henrique Goffi de Paulo
 ```
 
 ### Como Funciona:
-- **Link para o site**: Adicionei um link para o site do seu portfólio. Basta substituir o link `https://seu-site-deploy-link.com` pelo link real do seu deploy.
+- **Link para o site**: Adicionei um link para o site do seu portfólio. Basta substituir o link `https://portfolio-uia5.onrender.com` pelo link real do seu deploy.
 - **Tecnologias Utilizadas**: Listei as principais tecnologias que você provavelmente usou no seu portfólio. Sinta-se à vontade para modificar ou adicionar mais.
 - **Funcionalidades**: Descrevi algumas funcionalidades que um portfólio pode ter, mas você pode personalizar de acordo com o que o seu site oferece.
 - **Como Rodar Localmente**: Instruções para rodar o portfólio localmente, caso alguém queira testar o projeto.
