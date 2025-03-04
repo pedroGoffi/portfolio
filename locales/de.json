@@ -1,0 +1,44 @@
+{
+  "Navbar": {
+    "title": "<%= Goffi Portfolio %>",
+    "home": "Startseite",
+    "projects": "Projekte",
+    "contact": "Kontakt"
+  },
+  "Home": {
+    "title": "Portfolio",
+    "intro": "Pedro Henrique Goffi de Paulo",
+    "about": "Gehe zur Über-Seite",
+    "skillsTitle": "Fähigkeiten",
+    "contactBtn": "Kontakt",
+    "experienceTitle": "Erfahrung",
+    "socialLinksTitle": "Soziale Medien",
+    "contactFormTitle": "In Kontakt treten",
+    "contactFormName": "Name",
+    "contactFormEmail": "Email",
+    "contactFormMessage": "Nachricht",
+    "submitBtn": "Senden"
+  },
+  "Footer": {
+    "about": "Über",
+    "services": "Dienste",
+    "contact": "Kontakt",
+    "copyright": "© {year} Pedro Henrique Goffi de Paulo. Alle Rechte vorbehalten."
+  },
+  "SkillCard": {
+    "React": "React Framework zur Erstellung skalierbarer Anwendungen.",
+    "Next": { "js": "Next.js zur Erstellung moderner, skalierbarer Webanwendungen." },
+    "Node": { "js": "Plattform zur Erstellung von Backend-Servern." },
+    "CSS3": "Styling und Design von responsiven Layouts.",
+    "Docker": "Isolierte Umgebungen für Entwicklung und Produktion.",
+    "TypeScript": "Entwicklung skalierbarer Anwendungen mit TypeScript."
+  },
+  "ExperienceCard": {
+    "telegram_promote_title": "Telegram Promote",
+    "telegram_promote_description": "Organisiert und zeigt Telegram-Gruppen auf einer Website an, mit einer dynamischen Benutzeroberfläche, die für SEO optimiert ist.",
+    "micro_srv_go_title": "Micro Server in Go",
+    "micro_srv_go_description": "Go-Server zum Herunterladen und Speichern von Telegram-Bildern, mit Uploads auf externe Server und Zugriff über HTTP.",
+    "bin_bot_title": "Binance Bot",
+    "bin_bot_description": "Kryptowährungsanalysator unter Verwendung der Binance-API, mit technischen Indikatoren wie MACD, RSI und Z-Score zur Unterstützung von Kauf- und Verkaufsentscheidungen."
+  }
+}

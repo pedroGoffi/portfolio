@@ -1,0 +1,44 @@
+{
+  "Navbar": {
+    "title": "<%= Goffi ポートフォリオ %>",
+    "home": "ホーム",
+    "projects": "プロジェクト",
+    "contact": "連絡先"
+  },
+  "Home": {
+    "title": "ポートフォリオ",
+    "intro": "ペドロ・エンリケ・ゴフィ・デ・パウロ",
+    "about": "「アバウト」ページへ移動",
+    "skillsTitle": "スキル",
+    "contactBtn": "連絡先",
+    "experienceTitle": "経験",
+    "socialLinksTitle": "ソーシャルメディア",
+    "contactFormTitle": "連絡フォーム",
+    "contactFormName": "名前",
+    "contactFormEmail": "メール",
+    "contactFormMessage": "メッセージ",
+    "submitBtn": "送信"
+  },
+  "Footer": {
+    "about": "概要",
+    "services": "サービス",
+    "contact": "連絡先",
+    "copyright": "© {year} Pedro Henrique Goffi de Paulo. 全著作権所有"
+  },
+  "SkillCard": {
+    "React": "スケーラブルなアプリケーションを作成するためのReactフレームワーク。",
+    "Next": { "js": "最新でスケーラブルなWebアプリケーションを作成するためのNext.js。" },
+    "Node": { "js": "バックエンドサーバーを作成するためのプラットフォーム。" },
+    "CSS3": "レスポンシブレイアウトのスタイリングとデザイン。",
+    "Docker": "開発と本番環境のための隔離された環境。",
+    "TypeScript": "TypeScriptを使ってスケーラブルなアプリケーションを開発。"
+  },
+  "ExperienceCard": {
+    "telegram_promote_title": "Telegram Promote",
+    "telegram_promote_description": "動的なインターフェースとSEO最適化されたTelegramグループをWebサイトに表示。",
+    "micro_srv_go_title": "Micro Server in Go",
+    "micro_srv_go_description": "Telegram画像をダウンロードして保存するためのGoサーバー、外部サーバーへのアップロードとHTTP経由でのアクセス。",
+    "bin_bot_title": "Binance Bot",
+    "bin_bot_description": "Binance APIを使用した暗号通貨分析ツール。MACD、RSI、Zスコアなどのテクニカル指標で購入および販売の決定をサポート。"
+  }
+}

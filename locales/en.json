@@ -1,0 +1,44 @@
+{
+  "Navbar": {
+    "title": "<%= Goffi Portfolio %>",
+    "home": "Home",
+    "projects": "Projects",
+    "contact": "Contact"
+  },
+  "Home": {
+    "title": "Portfolio",
+    "intro": "Pedro Henrique Goffi de Paulo",
+    "about": "Go to the about page",
+    "skillsTitle": "Skills",
+    "contactBtn": "Contact",
+    "experienceTitle": "Experience",
+    "socialLinksTitle": "Social Media",
+    "contactFormTitle": "Get in touch",
+    "contactFormName": "Name",
+    "contactFormEmail": "Email",
+    "contactFormMessage": "Message",
+    "submitBtn": "Send"
+  },
+  "Footer": {
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact",
+    "copyright": "© {year} Pedro Henrique Goffi de Paulo. All rights reserved."
+  },
+  "SkillCard": {
+    "React": "React framework for building scalable applications.",
+    "Next": { "js": "Next.js for building modern, scalable web applications." },
+    "Node": { "js": "Platform for creating backend servers." },
+    "CSS3": "Styling and designing responsive layouts.",
+    "Docker": "Isolated environments for development and production.",
+    "TypeScript": "Developing scalable applications with TypeScript."
+  },
+  "ExperienceCard": {
+    "telegram_promote_title": "Telegram Promote",
+    "telegram_promote_description": "Organizes and displays Telegram groups on a website, with a dynamic interface optimized for SEO.",
+    "micro_srv_go_title": "Micro Server in Go",
+    "micro_srv_go_description": "Go server for downloading and storing Telegram images, with uploads to external servers and access via HTTP.",
+    "bin_bot_title": "Binance Bot",
+    "bin_bot_description": "Cryptocurrency analyzer using the Binance API, with technical indicators like MACD, RSI, and Z-Score to assist with buy and sell decisions."
+  }
+}
